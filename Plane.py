@@ -1,5 +1,5 @@
 from time import clock
-
+from math import *
 
 class Plane(object):
 
@@ -8,39 +8,35 @@ class Plane(object):
         self.x = x
         self.y = y
         self.z = z
-        # maybe velocities should be added here...
+        self.Vx = 0.5               # km/s
+        self.Vy = 0.2               # km/s
+        self.Vz = 2.5
+        self.t0 = clock()
+        self.g = 0.01
+
     def __name__(self):
         return self.name
 
     def takeoff(self):
-        self.Vx = 0.5    #km/s
-        self.Vy = 0.2    #km/s 0,54
-        self.Vz = 2.5     # 2Vz/10 = 10325
+
         self.t0 = clock()
 
-    def position(self):
+    def move(self):
         t = clock() - self.t0
         self.x = self.Vx * t
         self.y = self.Vy * t
-        self.z = self.Vz * t  - 0.005 * t**2
-        return [self.x,self.y,self.z]
+        self.z = self.Vz * t - self.g / 2 * t**2
+
+    def position(self):
+        return [self.x, self.y, self.z]
+
+    def velocity(self):
+        t = clock() - self.t0
+        v2 = self.Vx**2 + self.Vy**2 + (self.Vz + self.g*t)
+        return math.sqrt(v2)
 
     def isFlying(self):
         if self.z > 0:
             return True
         else:
             return False
-
-
-# TEST
-"""
-rocket = Plane("rakieta",0,0,0)
-
-rocket.takeoff()
-print(rocket.position())
-print(rocket.position())
-print(rocket.position())
-
-while(rocket.isFlying()):
-    print(rocket.position())
-"""
