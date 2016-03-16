@@ -77,10 +77,13 @@ class PressureSensor(Sensors):
 
 class WheelsONOFF(Sensors):
     def __init__(self,name):
-        super(WheelsONOFF,self).__init__(name)
+        super(WheelsONOFF, self).__init__(name)
 
-    def read(self,plane):
-        return False
+    def read(self, plane):
+        if plane.position()[2] > 1000:
+            return True
+        else:
+            return False
 
 
 def ConstructSensorDict(listOfSensors):
