@@ -33,7 +33,7 @@ class Plane(object):
     def velocity(self):
         t = clock() - self.t0
         v2 = self.Vx**2 + self.Vy**2 + (self.Vz + self.g*t)
-        return math.sqrt(v2)
+        return sqrt(v2)
 
     def isFlying(self):
         if self.z > 0:
