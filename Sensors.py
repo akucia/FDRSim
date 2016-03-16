@@ -66,6 +66,14 @@ class TimeSensor(Sensors):
         t = clock()
         return self.magic(t)
 
+class PressureSensor(Sensors):
+    def __init__(self,name):
+        super(PressureSensor,self).__init__(name)
+        self.magic = lambda x: 1013 + exp(-x) + np.random.normal(0, 0.01)
+
+    def read(self,plane):
+        h = plane.position()[2]
+        return self.magic(h)
 
 
 def ConstructSensorDict(listOfSensors):
