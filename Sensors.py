@@ -75,13 +75,11 @@ class PressureSensor(Sensors):
         h = plane.position()[2]
         return self.magic(h)
 
-class WheelsONOFF(self,plane):
+class WheelsONOFF(Sensors):
     def __init__(self,name):
         super(WheelsONOFF,self).__init__(name)
 
-
     def read(self,plane):
-
         return False
 
 

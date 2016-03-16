@@ -11,10 +11,11 @@ AS = AltitudeSensor("AS")
 GPS = GPSSensor("GPS")
 T = TimeSensor("T")
 PS = PressureSensor("PS")
+WH = WheelsONOFF("WH")
 rocket.takeoff()
 rocket.move()
 rocket.move()
-sensorsDict = ConstructSensorDict([GPS,ETS,EFS,AS,T,PS])
+sensorsDict = ConstructSensorDict([GPS,ETS,EFS,AS,T,PS,WH])
 
 while rocket.isFlying():
     rocket.move()
