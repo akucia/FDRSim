@@ -3,40 +3,42 @@ from math import *
 
 class Plane(object):
 
-    def __init__(self,name,x,y,z):
+    def __init__(self,name,x,y,z,vx,vy,vz):
         self.name = name
         self.x = x
         self.y = y
         self.z = z
-        self.Vx = 0.5               # km/s
-        self.Vy = 0.2               # km/s
-        self.Vz = 2.5
-        self.t0 = clock()
+        self.vx = vx              # km/s
+        self.vy = vy               # km/s
+        self.vz = vz
         self.g = 0.01
+        self.t0 = 0
+        self.inAir = False
 
-    def __name__(self):
+    def name(self):
         return self.name
 
     def takeoff(self):
-
         self.t0 = clock()
+        self.inAir = True
 
-    def move(self):
-        t = clock() - self.t0
-        self.x = self.Vx * t
-        self.y = self.Vy * t
-        self.z = self.Vz * t - self.g / 2 * t**2
+    def update(self):
+        if self.inAir:
+            t = clock() - self.t0
+            self.x = self.vx * t
+            self.y = self.vy * t
+            self.z = self.vz * t - self.g / 2 * t**2
 
-    def position(self):
+    def getPosition(self):
         return [self.x, self.y, self.z]
 
-    def velocity(self):
+    def getVelocity(self):
         t = clock() - self.t0
-        v2 = self.Vx**2 + self.Vy**2 + (self.Vz + self.g*t)
+        v2 = self.vx**2 + self.vy**2 + (self.vz + self.g*t)
         return sqrt(v2)
 
+    def hasLanded(self):
+        return not(self.inAir)
+
     def isFlying(self):
-        if self.z > 0:
-            return True
-        else:
-            return False
+        return self.inAir
