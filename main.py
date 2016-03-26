@@ -6,5 +6,4 @@ def main():
     collector()
 
 
-
 main()

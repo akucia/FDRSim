@@ -18,7 +18,7 @@ class EngineTempSensor(Sensors):
 
     def __init__(self, name, plane):
         super(EngineTempSensor, self).__init__(name, plane)
-        self.magic = lambda x: log(x) + np.random.normal(0, 0.1)
+        self.magic = lambda x: round(log(x) + np.random.normal(0, 0.1),2)
 
     def read(self):
         vel = self.plane.getVelocity()
@@ -29,7 +29,7 @@ class EngineFuelSensor(Sensors):
 
     def __init__(self, name, plane):
         super(EngineFuelSensor, self).__init__(name, plane)
-        self.magic = lambda x: x**2 + np.random.normal(0, 0.1)
+        self.magic = lambda x: round(x**2 + np.random.normal(0, 0.1),2)
 
     def read(self):
         vel = self.plane.getVelocity()
@@ -40,7 +40,7 @@ class AltitudeSensor(Sensors):
 
     def __init__(self, name, plane):
         super(AltitudeSensor, self).__init__(name, plane)
-        self.magic = lambda x: x + np.random.normal(0, 0.1)
+        self.magic = lambda x: round(x + np.random.normal(0, 0.1),2)
 
     def read(self):
         al = self.plane.getPosition()[2]
@@ -57,19 +57,18 @@ class GPSSensor(Sensors):
 """
 
 class TimeSensor(Sensors):
-    def __init__(self, name):
-        super(TimeSensor, self).__init__(name)
-        self.magic = lambda x: x #+ np.random.normal(0, 0.0001)
+    def __init__(self, name, plane):
+        super(TimeSensor, self).__init__(name, plane)
+        self.magic = lambda x: round(x,2)
 
     def read(self):
-        t = clock()
-        return self.magic(t)
+        return self.magic(self.plane.getTime())
 
 
 class PressureSensor(Sensors):
     def __init__(self, name, plane):
         super(PressureSensor,self).__init__(name, plane)
-        self.magic = lambda x: 1013 + exp(-x) + np.random.normal(0, 0.01)
+        self.magic = lambda x: round(1013 + exp(-x) + np.random.normal(0, 0.1),2)
 
     def read(self):
         h = self.plane.getPosition()[2]
@@ -97,7 +96,7 @@ class SensorFactory(object):
         elif sensorType == 'AltitudeSensor':
             return AltitudeSensor(sensorType + numberStr,plane)
         elif sensorType == 'TimeSensor':
-            return TimeSensor(sensorType + numberStr)
+            return TimeSensor(sensorType + numberStr, plane)
         elif sensorType == 'PressureSensor':
             return PressureSensor(sensorType + numberStr,plane)
         elif sensorType == 'WheelsONOFF':

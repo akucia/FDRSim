@@ -14,6 +14,7 @@ class Plane(object):
         self.g = 0.01
         self.t0 = 0
         self.inAir = False
+        self.t = 0
 
     def name(self):
         return self.name
@@ -24,7 +25,8 @@ class Plane(object):
 
     def update(self):
         if self.inAir:
-            t = clock() - self.t0
+            self.t = clock() - self.t0
+            t = self.t
             self.x = self.vx * t
             self.y = self.vy * t
             self.z = self.vz * t - self.g / 2 * t**2
@@ -32,8 +34,11 @@ class Plane(object):
     def getPosition(self):
         return [self.x, self.y, self.z]
 
+    def getTime(self):
+        return self.t
+
     def getVelocity(self):
-        t = clock() - self.t0
+        t = self.t
         v2 = self.vx**2 + self.vy**2 + (self.vz + self.g*t)
         return sqrt(v2)
 
