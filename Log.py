@@ -2,59 +2,63 @@ import time
 import os
 
 
-class History(object):
+class Log(object):
     """
     contains methods for creating and maintaining log
     """
-    def __init__(self):
-        """
-        creates empty list for future logs
-        :return: none
-        """
-        self.storage = []
+    @staticmethod
+    def saveToBIN(name, header, data):
+        pass
+    @staticmethod
+    def saveToCSV(name, header, data):
 
-    def add(self, newItem):
-        """
-
-        :param newItem: list, contains strings which will be added to history
-        :return: none
-        """
-        self.storage.append(newItem)
-
-    def show(self):
-        """
-        prints on screen all entries from history
-        :return: none
-        """
-        print("History:")
-        for item in self.storage:
-            print(item)
-
-    def saveToFile(self):
-        """
-        saves history to file
-        :return: none
-        """
-        directory = os.getcwd() + '/history'
+        directory = os.getcwd() + '/log'
         if not os.path.exists(directory):                   # checks if directory exists
             os.makedirs(directory)
-        fileName = directory + '/' + time.strftime("%H:%M:%S") + '.txt'      # creates new file name using current time
+        fileName = directory + '/'+str(name)+'_' + time.strftime("%H:%M:%S") + '.csv'      # creates new file name using current time
 
         logFile = open(fileName,'a')                        # opens or creates file
-        for item in self.storage:
+        for item in header:
             logFile.write(item)
+            logFile.write(',')
+
+        logFile.write('\n')
+
+        for line in data:
+            for item in line:
+                logFile.write(str(item))
+                logFile.write(',')
             logFile.write('\n')
 
+        logFile.close()
         print("Log saved to" + fileName)
 
-    def isEmpty(self):
-        """
-        checks if history is empty
-        :return:
-        """
-        if len(self.storage) == 0:
-            return True
-        else:
-            return False
+    @staticmethod
+    def saveToTXT(name, header, data):
 
+        directory = os.getcwd() + '/log'
+        if not os.path.exists(directory):                   # checks if directory exists
+            os.makedirs(directory)
+        fileName = directory + '/'+str(name)+'_' + time.strftime("%H:%M:%S") + '.txt'      # creates new file name using current time
 
+        logFile = open(fileName,'a')                        # opens or creates file
+        for item in header:
+            logFile.write(str(item))
+            logFile.write('\t')
+
+        logFile.write('\n')
+
+        for line in data:
+            for item in line:
+                logFile.write(str(item))
+                logFile.write('\t')
+            logFile.write('\n')
+
+        logFile.close()
+        print("Log saved to" + fileName)
+
+def encoder(sensorsList):
+    header = []
+    for sensor in sensorsList:
+        header.append(sensor.getName())
+    return header

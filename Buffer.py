@@ -1,4 +1,4 @@
-from Sensors import *
+from Sensors import Sensors, SensorFactory
 from copy import deepcopy
 from time import clock, sleep
 class Buffer(object):

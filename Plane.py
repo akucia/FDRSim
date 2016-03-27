@@ -16,7 +16,7 @@ class Plane(object):
         self.inAir = False
         self.t = 0
 
-    def name(self):
+    def getName(self):
         return self.name
 
     def takeoff(self):
