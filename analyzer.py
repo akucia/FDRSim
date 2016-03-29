@@ -2,3 +2,4 @@
 
 
 def analyzer():
+    pass

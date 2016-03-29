@@ -1,7 +1,7 @@
 from collector import collector
 from analyzer import analyzer
 
-def main():
+def FDR():
 
     collector()
     analyzer()
