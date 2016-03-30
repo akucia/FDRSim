@@ -6,4 +6,4 @@ def FDR():
     collector()
     analyzer()
 
-main()
+FDR()

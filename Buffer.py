@@ -28,6 +28,7 @@ class Buffer(object):
     def printData(self):
         for line in self.allReadings:
             for number in line:
-                print repr(number).rjust(10),
-                print('\t'),
-            print
+                print (number, '\t',end=" ")
+                #print repr(number).rjust(10), used to work in python 2.7
+                #print(),
+            print()

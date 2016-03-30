@@ -23,4 +23,4 @@ def collector():
     print(header)
     buffer.printData()
 
-    Log.saveToTXT(plane.getName(),header,buffer.returnDataCopy())
+    Log.saveToCSV(plane.getName(),header,buffer.returnDataCopy())
