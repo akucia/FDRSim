@@ -1,2 +1,2 @@
 # FDRSim
-Flight Data Recorder Simulator, python 2.7
+Flight Data Recorder Simulator, python 3.4
