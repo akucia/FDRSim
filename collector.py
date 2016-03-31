@@ -3,11 +3,12 @@ from Sensors import SensorFactory
 from Buffer import Buffer
 from Log import Log, encoder
 
-def collector():
+def collector(sensorsDict):
+# TODO delete imports for collector function, it's not used anymore
     #initialization
 
     plane = Plane('rocket',0,0,0,0.5,0.2,2.5)           # velocities in km/s
-    sensors = {"TimeSensor": 1, "EngineTempSensor": 4,"EngineFuelSensor": 4, "AltitudeSensor": 1, "PressureSensor": 1}
+    sensors = sensorsDict
     sensorsList = SensorFactory.createSensorList(sensors, plane)
 
     buffer = Buffer(10)

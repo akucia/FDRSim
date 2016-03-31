@@ -3,6 +3,7 @@ import os
 
 
 class Log(object):
+# TODO methods for reading from db
     """
     contains methods for creating and maintaining log
     """

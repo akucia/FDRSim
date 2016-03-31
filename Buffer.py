@@ -1,8 +1,9 @@
 from Sensors import Sensors, SensorFactory
 from copy import deepcopy
 from time import clock, sleep
-class Buffer(object):
 
+class Buffer(object):
+# TODO tidy up this class
 
     def __init__(self, freq):
         self.freq = freq

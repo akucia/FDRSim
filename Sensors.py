@@ -5,7 +5,7 @@ import numpy as np
 
 
 class Sensors(object):
-
+# TODO tidy up
     def __init__(self, name, plane):
         self.name = name
         self.plane = plane
@@ -18,11 +18,11 @@ class EngineTempSensor(Sensors):
 
     def __init__(self, name, plane):
         super(EngineTempSensor, self).__init__(name, plane)
-        self.magic = lambda x: round(log(x) + np.random.normal(0, 0.1),2)
+        self.magic = lambda : round( 400 + np.random.normal(0, 0.1),2)
 
     def read(self):
-        vel = self.plane.getVelocity()
-        return self.magic(vel)
+        #vel = self.plane.getVelocity()
+        return self.magic()
 
 
 class EngineFuelSensor(Sensors):
