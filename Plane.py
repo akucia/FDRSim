@@ -3,7 +3,7 @@ from math import *
 
 class Plane(object):
 # TODO tidy up
-    def __init__(self,name,vx,vy,vz,x=0,y=0,z=0):
+    def __init__(self,vx,vy,vz,name="plane",x=0,y=0,z=0):
         self.name = name
         self.x = x
         self.y = y
@@ -31,7 +31,7 @@ class Plane(object):
             self.y = self.vy * t
             self.z = self.vz * t - self.g / 2 * t**2
         if self.z < 0:
-            self.inAir = not(self.inAir)
+            self.inAir = not self.inAir
 
     def getPosition(self):
         return [self.x, self.y, self.z]

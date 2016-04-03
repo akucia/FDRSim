@@ -18,10 +18,9 @@ class EngineTempSensor(Sensors):
 
     def __init__(self, name, plane):
         super(EngineTempSensor, self).__init__(name, plane)
-        self.magic = lambda : round( 400 + np.random.normal(0, 0.1),2)
+        self.magic = lambda : round( 400 + np.random.normal(0, 0.01),2)
 
     def read(self):
-        #vel = self.plane.getVelocity()
         return self.magic()
 
 
@@ -29,7 +28,7 @@ class EngineFuelSensor(Sensors):
 
     def __init__(self, name, plane):
         super(EngineFuelSensor, self).__init__(name, plane)
-        self.magic = lambda x: round(x**2 + np.random.normal(0, 0.1),2)
+        self.magic = lambda x: round(x**2 + np.random.normal(0, 0.01),2)
 
     def read(self):
         vel = self.plane.getVelocity()
@@ -40,7 +39,7 @@ class AltitudeSensor(Sensors):
 
     def __init__(self, name, plane):
         super(AltitudeSensor, self).__init__(name, plane)
-        self.magic = lambda x: round(x + np.random.normal(0, 0.1),2)
+        self.magic = lambda x: round(x + np.random.normal(0, 0.01),2)
 
     def read(self):
         al = self.plane.getPosition()[2]
@@ -68,7 +67,7 @@ class TimeSensor(Sensors):
 class PressureSensor(Sensors):
     def __init__(self, name, plane):
         super(PressureSensor,self).__init__(name, plane)
-        self.magic = lambda x: round(1013 + exp(-x) + np.random.normal(0, 0.1),2)
+        self.magic = lambda x: round(1013 + exp(-x) + np.random.normal(0, 0.01),2)
 
     def read(self):
         h = self.plane.getPosition()[2]

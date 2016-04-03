@@ -4,7 +4,7 @@ matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 from matplotlib import style
-
+#import matplotlib.pyplot as plt
 from Plane import Plane
 from Sensors import SensorFactory
 from Buffer import Buffer
@@ -14,16 +14,17 @@ from Log import Log, encoder
 style.use("ggplot")
 LARGE_FONT=("Verdana",12)
 SMALL_FONT=("Verdana",10)
-AVAILABLE_SENSORS = ['EngineTempSensor','EngineFuelSensor','AltitudeSensor','TimeSensor','PressureSensor','WheelsONOFF']
+AVAILABLE_SENSORS = ['EngineTempSensor','EngineFuelSensor','AltitudeSensor','TimeSensor','PressureSensor']
 
 def NI():
     print("Not implemented yet!")
 
-def enableWidget(state, widget):
+def enableWidget(state, widget, entryvariable):
         if state == True:
             widget.configure(state='normal')
         else:
             widget.configure(state='disabled')
+            entryvariable.set(0)
 
 
 class FDR_GUI(tk.Tk):
@@ -137,7 +138,7 @@ class CollectorPage(tk.Frame):
             E.grid(row=r, column=3, sticky = 'W')
             CheckVar = tk.IntVar()
             C = tk.Checkbutton(self, text = sensor, justify = tk.LEFT, variable = CheckVar,
-                 onvalue = 1, offvalue = 0, height=1, width = 15, command = lambda var=CheckVar,e=E:enableWidget(var.get(), e) )
+                 onvalue = 1, offvalue = 0, height=1, width = 15, command = lambda var=CheckVar,e=E,ev=EntryVar:enableWidget(var.get(), e, ev) )
             C.grid(row=r, column=2)
             self.SensorDict[sensor] = EntryVar
             self.EntryVarList.append(EntryVar)
@@ -148,22 +149,23 @@ class CollectorPage(tk.Frame):
             r += 1
 
         button1 = tk.Button(self, text="Simulate!",
-                            command=lambda dictionary=self.chosenSensors, plane=self.createPlane: Simulation(dictionary(), plane()))
-        button1.grid(row=20, column=0, sticky='ew', columnspan=5)
+                            command=lambda dictionary=self.chosenSensors, plane=self.createPlane: GraphPage(dictionary(), plane()))
+        button1.grid(row=20, column=0, sticky='ew', columnspan=6)
 
         button2 = tk.Button(self, text="Back to home",
                             command=lambda: controller.show_frame(StartPage))
-        button2.grid(row=22, column=1)
+        button2.grid(row=22, column=1,columnspan = 2)
 
 
     def chosenSensors(self):
         dict = {}
         for s in self.SensorDict.keys():
-            dict[s] = self.SensorDict[s].get()
+            if self.SensorDict[s].get() > 0:
+                dict[s] = self.SensorDict[s].get()
         return dict
 
     def createPlane(self):
-        return Plane(self.planeName,self.Vx.get(), self.Vy.get(),self.Vz.get())
+        return Plane(self.Vx.get(), self.Vy.get(),self.Vz.get(),self.planeName)
 
 
 
@@ -185,7 +187,7 @@ class AnalyzerPage(tk.Frame):
                             command=lambda: controller.show_frame(StartPage))
         button1.pack()
 
-class Simulation(tk.Tk):
+class GraphPage(tk.Tk):
     def __init__(self, sensors, plane, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         self.sensors = sensors
@@ -201,10 +203,8 @@ class Simulation(tk.Tk):
         button1 = tk.Button(self, text="Abort",
                             command=lambda: self.destroy())
         button1.pack()
-        # TODO more plots!!!
-        f = Figure(figsize=(5,5), dpi=100)
-        self.chart=f.add_subplot(111)
 
+        f = Figure(figsize=(10,10), dpi=100)
         self.canvas = FigureCanvasTkAgg(f,self)
         self.canvas.show()
         self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
@@ -213,47 +213,68 @@ class Simulation(tk.Tk):
         toolbar.update()
         self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
+        self.charts = self.createPlots(f)
+
         planeName,header,data = self.runSimulation()
-        Log.saveToCSV(planeName.get(),header,data)
+
+        #Log.saveToCSV(planeName.get(),header,data)
+
+
+    def createPlots(self,figure):
+
+        self.numberOfPlots = 0
+        for s in self.sensors.keys():
+            if self.sensors[s] > 0:
+                self.numberOfPlots +=1
+        self.nRows = 2
+        self.nColumns = int(self.numberOfPlots / 2) + self.numberOfPlots % self.nRows
+
+        chartsTable = []
+        i = 0
+        for row in range(self.nRows):
+            rowList = []
+            for column in range(self.nColumns):
+                i += 1
+                if i <= self.numberOfPlots:
+                    rowList.append(figure.add_subplot(self.nRows*100+self.nColumns*10+i))
+            chartsTable.append(rowList)
+
+        return chartsTable
+
+    def getChart(self,number):
+        if self.numberOfPlots < 2:
+            return self.charts[number]
+        else:
+            row = int(number/self.nColumns)
+            column = number - row*self.nColumns
+            return self.charts[row][column]
 
     def runSimulation(self):
-
-        #plane = Plane('rocket',0,0,0,0.5,0.2,0.25)           # velocities in km/s
 
         sensors = self.sensors
         sensorsList = SensorFactory.createSensorList(sensors, self.plane)
         header = encoder(sensorsList)
-        buffer = Buffer(5)
+        buffer = Buffer(5,sensorsList)
         self.plane.takeoff()                                     # start the simulation
-        n = 0
-        tsIndex = 0
-        asIndex = 1
-        # TODO repet code below for all sensors
-        for sensorName in header:
-            if 'TimeSensor' in sensorName:
-                tsIndex = header.index(sensorName)
-                break
-        for sensorName in header:
-            if 'AltitudeSensor' in sensorName:
-                asIndex = header.index(sensorName)
 
-        xList = []
-        yList = []
-        # TODO different plot for each sensor type, different color for each sensor number
-        while self.plane.isFlying() and n < 1000:                  # until it touches the ground
+        while self.plane.isFlying() :
+
             self.plane.update()
-            buffer.readData(sensorsList)
-            xList.append(sensorsList[tsIndex].read())
-            yList.append(sensorsList[asIndex].read())
-            n += 1
+            buffer.readData()
+            data = buffer.returnDataHorizontal()
 
-            self.chart.clear()
-            self.chart.plot(xList, yList)
+            n = 0
+            k = 0
+            for s in self.sensors.keys():
+
+                self.getChart(n).clear()
+                self.getChart(n).set_title(s)
+                for i in range(self.sensors[s]):
+                    self.getChart(n).plot(data[i+k])
+
+                k += self.sensors[s]
+
+                n += 1
             self.canvas.show()
-        print(header)
-        buffer.printData()
 
         return self.plane.getName(),header,buffer.returnDataCopy()
-
-app = FDR_GUI()
-app.mainloop()
