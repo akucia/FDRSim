@@ -177,15 +177,30 @@ class AnalyzerPage(tk.Frame):
         tk.Frame.__init__(self, parent)
 
         label = tk.Label(self, text="Data Analyzer", font=LARGE_FONT)
-        label.pack(pady=10, padx=10)
+        label.grid(row=0, column=2, sticky = 'ew',columnspan = 3)
 
-        button2 = tk.Button(self, text="STH",
-                            command=lambda: NI())
-        button2.pack()
+        label1 = tk.Label(self, text="\n\n\n", font=LARGE_FONT)
+        label1.grid(row=1, column=2, sticky = 'ew',columnspan = 3)
+
+
+
+        DB = []
+        startingRow = 4
+        row = startingRow
+        column = 0
+        for file in Log().loadDB():
+            # TODO readData returns values that need handling
+            button = tk.Button(self, text=file, command=lambda f=file: print(Log().readData(f)))
+            button.grid(row=row, column=column, sticky = 'ew',columnspan = 1)
+            DB.append(button)
+            row += 1
+            if (row - startingRow ) % 6  == 0:
+                column += 1
+                row = startingRow
 
         button1 = tk.Button(self, text="Back to home",
                             command=lambda: controller.show_frame(StartPage))
-        button1.pack()
+        button1.grid(row=1, column=int(column/2), sticky = 'ew')
 
 class GraphPage(tk.Tk):
     def __init__(self, sensors, plane, *args, **kwargs):

@@ -1,6 +1,6 @@
 import time
 import os
-
+import os.path
 
 class Log(object):
 # TODO methods for reading from db
@@ -10,6 +10,7 @@ class Log(object):
     @staticmethod
     def saveToBIN(name, header, data):
         pass
+
     @staticmethod
     def saveToCSV(name, header, data):
 
@@ -57,6 +58,41 @@ class Log(object):
 
         logFile.close()
         print("Log saved to" + fileName)
+
+    def loadDB(self):
+        directory = os.getcwd() + '/log'
+
+        files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+
+        db = []
+        for file in files:
+            if 'csv' in file:
+                db.append(file)
+        return db
+
+    def readData(self,file):
+        file = os.getcwd() + '/log/' + file
+        logFile = open(file,'r')                        # opens or creates file
+        line = logFile.readline()
+        header = line.split(',')
+        header.remove('\n')
+
+        data = []
+
+        for line in logFile.readlines():
+            temp = line.split(',')
+            temp.remove('\n')
+            data.append(temp)
+
+        newData = []
+        for j in range(len(header)):
+            sensor = []
+            for i in range(len(data)):
+                sensor.append(data[i][j])
+            newData.append(sensor)
+
+        return header, newData
+
 
 def encoder(sensorsList):
     header = []
