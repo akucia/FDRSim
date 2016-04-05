@@ -79,7 +79,7 @@ class CollectorPage(tk.Frame):
 
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-
+        # TODO przyciski nie na środku!
         label1 = tk.Label(self, text="Data Collector", font=LARGE_FONT)
         label1.grid(row=0,columnspan=5)
         #----------------------------------
@@ -135,11 +135,11 @@ class CollectorPage(tk.Frame):
 
             EntryVar = tk.IntVar()
             E = tk.Entry(self, bd =5, state='disabled', width = 5, textvariable = EntryVar,)
-            E.grid(row=r, column=3, sticky = 'W')
+            E.grid(row=r, column=3, sticky = 'eW')
             CheckVar = tk.IntVar()
             C = tk.Checkbutton(self, text = sensor, justify = tk.LEFT, variable = CheckVar,
                  onvalue = 1, offvalue = 0, height=1, width = 15, command = lambda var=CheckVar,e=E,ev=EntryVar:enableWidget(var.get(), e, ev) )
-            C.grid(row=r, column=2)
+            C.grid(row=r, column=2,sticky = 'ew')
             self.SensorDict[sensor] = EntryVar
             self.EntryVarList.append(EntryVar)
             self.EntryWidgList.append(E)
@@ -149,7 +149,7 @@ class CollectorPage(tk.Frame):
             r += 1
 
         button1 = tk.Button(self, text="Simulate!",
-                            command=lambda dictionary=self.chosenSensors, plane=self.createPlane: GraphPage(dictionary(), plane()))
+                            command=lambda dictionary=self.chosenSensors, plane=self.createPlane: LiveGraphPage(dictionary(), plane()))
         button1.grid(row=20, column=0, sticky='ew', columnspan=6)
 
         button2 = tk.Button(self, text="Back to home",
@@ -172,37 +172,132 @@ class CollectorPage(tk.Frame):
 
 
 class AnalyzerPage(tk.Frame):
-# TODO importing and plotting data from db using Log class
+# TODO napis nie na srodku
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
 
         label = tk.Label(self, text="Data Analyzer", font=LARGE_FONT)
-        label.grid(row=0, column=2, sticky = 'ew',columnspan = 3)
+        label.grid(row=0, column=1, sticky = 'ew',columnspan = 3)
 
         label1 = tk.Label(self, text="\n\n\n", font=LARGE_FONT)
-        label1.grid(row=1, column=2, sticky = 'ew',columnspan = 3)
+        label1.grid(row=2, column=1, sticky = 'ew',columnspan = 3)
 
-
-
-        DB = []
-        startingRow = 4
-        row = startingRow
-        column = 0
-        for file in Log().loadDB():
-            # TODO readData returns values that need handling
-            button = tk.Button(self, text=file, command=lambda f=file: print(Log().readData(f)))
-            button.grid(row=row, column=column, sticky = 'ew',columnspan = 1)
-            DB.append(button)
-            row += 1
-            if (row - startingRow ) % 6  == 0:
-                column += 1
-                row = startingRow
+        startingRow = 5
+        startingCol = 0
+        maxRow = 8
+        self.refresh(startingRow, startingCol,maxRow)
 
         button1 = tk.Button(self, text="Back to home",
                             command=lambda: controller.show_frame(StartPage))
-        button1.grid(row=1, column=int(column/2), sticky = 'ew')
+        button1.grid(row=1, column=1)
+        button1 = tk.Button(self, text="Refresh",
+                            command=lambda: self.refresh(startingRow,startingCol,maxRow))
+        button1.grid(row=2, column=1)
 
-class GraphPage(tk.Tk):
+    def refresh(self,startingRow,startingCol,maxRow):
+        DB = []
+
+        row = startingRow
+        column = startingCol
+
+        for file in Log().loadDB():
+
+            button = tk.Button(self, text=file, command=lambda f=file,data=Log().readData(file): StaticGraphPage(f,data[0],data[1]))
+            button.grid(row=row, column=column, sticky = 'ew',columnspan = 1)
+            DB.append(button)
+            row += 1
+            if (row - startingRow ) % maxRow  == 0:
+                column += 1
+                row = startingRow
+
+class StaticGraphPage(tk.Tk):
+    def __init__(self, name, header, data, *args, **kwargs):
+        tk.Tk.__init__(self, *args, **kwargs)
+        self.data = data
+        self.header = header
+        container = tk.Frame(self)
+        container.pack(side="top", fill="both", expand=True)
+        container.grid_rowconfigure(1, weight=1)
+        container.grid_columnconfigure(0, weight=1)
+
+        label = tk.Label(self, text=name, font=LARGE_FONT)
+        label.pack(pady=10, padx=10)
+
+        button1 = tk.Button(self, text="Back",
+                            command=lambda: self.destroy())
+        button1.pack()
+
+        label1 = tk.Label(self, text="\n", font=LARGE_FONT)
+        label1.pack()
+
+        f = Figure(figsize=(10,10), dpi=100)
+        self.canvas = FigureCanvasTkAgg(f,self)
+        self.canvas.show()
+        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        toolbar = NavigationToolbar2TkAgg(self.canvas, self)
+        toolbar.update()
+        self.canvas._tkcanvas.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        self.charts = self.createPlots(f)
+
+        self.plotData()
+        self.canvas.show()
+
+    def createPlots(self, figure):
+        #print(self.header)
+
+        self.numberOfPlots = 1
+
+        for i in range(len(self.header)):
+            if i == 0:
+                pass
+            else:
+                if self.header[i][-1] <= self.header[i-1][-1]:
+                    self.numberOfPlots +=1
+        self.nRows = 2
+        self.nColumns = int(self.numberOfPlots / 2) + self.numberOfPlots % self.nRows
+        #print(self.numberOfPlots,self.nRows,self.nColumns)
+        chartsTable = []
+        i = 0
+        for row in range(self.nRows):
+            rowList = []
+            for column in range(self.nColumns):
+                i += 1
+                if i <= self.numberOfPlots:
+                    rowList.append(figure.add_subplot(self.nRows*100+self.nColumns*10+i))
+            chartsTable.append(rowList)
+
+        return chartsTable
+
+    def getChart(self,number):
+        if self.numberOfPlots < 2:
+            return self.charts[number]
+        else:
+            row = int(number/self.nColumns)
+            column = number - row*self.nColumns
+            #print(row, column)
+            return self.charts[row][column]
+
+    def plotData(self):
+        plotNum = 0
+        for i in range(len(self.header)):
+            #print('p#',plotNum)
+            self.getChart(plotNum).plot(self.data[i])
+            if i < len(self.header)-1:
+                name1 = self.header[i+1].split('#')
+                name2 = self.header[i].split('#')
+                #print(name1,name2)
+                if int(name1[1]) <= int(name2[1]) :
+                    self.getChart(plotNum).set_title(name2[0])
+                    plotNum +=1
+                    #print('h#',self.header[i][-1],self.header[i+1][-1])
+            else:
+                name = self.header[i].split('#')
+                self.getChart(plotNum).set_title(name[0])
+
+
+class LiveGraphPage(tk.Tk):
     def __init__(self, sensors, plane, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         self.sensors = sensors
@@ -232,7 +327,7 @@ class GraphPage(tk.Tk):
 
         planeName,header,data = self.runSimulation()
 
-        #Log.saveToCSV(planeName.get(),header,data)
+        Log.saveToCSV(planeName.get(),header,data)
 
 
     def createPlots(self,figure):

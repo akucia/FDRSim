@@ -3,7 +3,7 @@ import os
 import os.path
 
 class Log(object):
-# TODO methods for reading from db
+
     """
     contains methods for creating and maintaining log
     """
@@ -72,7 +72,7 @@ class Log(object):
 
     def readData(self,file):
         file = os.getcwd() + '/log/' + file
-        logFile = open(file,'r')                        # opens or creates file
+        logFile = open(file,'r')
         line = logFile.readline()
         header = line.split(',')
         header.remove('\n')
