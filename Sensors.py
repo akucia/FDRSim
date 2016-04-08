@@ -6,14 +6,13 @@ class Sensors(object):
     """
     abstract class of Sensors
     """
-    # TODO tidy up
     def __init__(self, name, plane):
         """
 
         :param name: a string, name of the sensor
         :param plane: a Plane class object,
             used for access to simulation parameters
-        :return: none
+        :return:
         """
         self.name = name
         self.plane = plane
@@ -36,7 +35,7 @@ class EngineTempSensor(Sensors):
         :param name: a string, name of the sensor
         :param plane: a Plane class object,
             used for access to simulation parameters
-        :return: none
+        :return: a Sensors class object
         """
         super(EngineTempSensor, self).__init__(name, plane)
         self.magic = lambda: round(400 + np.random.normal(0, 0.01), 2)
@@ -59,7 +58,7 @@ class EngineFuelSensor(Sensors):
         :param name: a string, name of the sensor
         :param plane: a Plane class object,
             used for access to simulation parameters
-        :return: none
+        :return: a Sensors class object
         """
         super(EngineFuelSensor, self).__init__(name, plane)
         self.magic = lambda x: round(x**2 + np.random.normal(0, 0.01), 2)
@@ -83,7 +82,7 @@ class AltitudeSensor(Sensors):
         :param name: a string, name of the sensor
         :param plane: a Plane class object,
             used for access to simulation parameters
-        :return: none
+        :return: a Sensors class object
         """
         super(AltitudeSensor, self).__init__(name, plane)
         self.magic = lambda x: round(x + np.random.normal(0, 0.01),2)
@@ -107,7 +106,7 @@ class TimeSensor(Sensors):
         :param name: a string, name of the sensor
         :param plane: a Plane class object,
             used for access to simulation parameters
-        :return: none
+        :return: a Sensors class object
         """
         super(TimeSensor, self).__init__(name, plane)
         self.magic = lambda x: round(x,2)
@@ -130,10 +129,10 @@ class PressureSensor(Sensors):
         :param name: a string, name of the sensor
         :param plane: a Plane class object,
             used for access to simulation parameters
-        :return: none
+        :return: a Sensors class object
         """
         super(PressureSensor,self).__init__(name, plane)
-        self.magic = lambda x: round(1013 + exp(-x) + np.random.normal(0, 0.01),2)
+        self.magic = lambda x: round(200 + 1013*exp(-x) + np.random.normal(0, 0.01), 2)
 
     def read(self):
         """
@@ -155,7 +154,7 @@ class WheelsONOFF(Sensors):
         :param name: a string, name of the sensor
         :param plane: a Plane class object,
             used for access to simulation parameters
-        :return: none
+        :return: a Sensors class object
         """
         super(WheelsONOFF, self).__init__(name, plane)
 
@@ -212,12 +211,3 @@ class SensorFactory(object):
             for i in range(sensorsDict[sensorName]):
                 l.append(SensorFactory.createSensor(sensorName, '#'+str(i+1), plane))
         return l
-
-"""
-def ConstructSensorDict(listOfSensors):
-
-    dict = {}
-    for sensor in listOfSensors:
-        dict[sensor.getName()] = sensor
-    return dict
-"""

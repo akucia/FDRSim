@@ -167,18 +167,19 @@ class CollectorPage(tk.Frame):
             r += 1
 
         button1 = tk.Button(self, text="Simulate!",
-                            command=lambda dictionary=self.chosenSensors, plane=self.createPlane: LiveGraphPage(dictionary(), plane()))
+                            command=lambda dictionary=self.chosenSensors:
+                            LiveGraphPage(dictionary(), self.createPlane(self.Vx.get(), self.Vy.get(), self.Vz.get(), self.planeName.get())))
         button1.grid(row=20, column=0, padx=10, sticky='ew', columnspan=7)
 
         button2 = tk.Button(self, text="Back to home",
                             command=lambda: controller.show_frame(StartPage))
-        button2.grid(row=22, column=1, columnspan=3)
+        button2.grid(row=22, column=2, columnspan=2, padx=12, sticky='w')
 
     def chosenSensors(self):
         # TODO here
         """
 
-        :return: a dictionary of used sensors, {
+        :return: a dictionary of used sensors, {'sensor_type':quantity}
         """
         d = {}
         for s in self.SensorDict.keys():
@@ -186,8 +187,16 @@ class CollectorPage(tk.Frame):
                 d[s] = self.SensorDict[s].get()
         return d
 
-    def createPlane(self):
-        return Plane(self.Vx.get(), self.Vy.get(), self.Vz.get(), self.planeName)
+    def createPlane(self, Vx, Vy, Vz, name):
+        """
+        creates a Plane class objects with given parameters
+        :param Vx: a float,
+        :param Vy: a float,
+        :param Vz: a float,
+        :param name: a string,
+        :return: Plane object
+        """
+        return Plane(Vx, Vy, Vz, name)
 
 
 class ArchivePage(tk.Frame):
@@ -268,8 +277,8 @@ class StaticGraphPage(tk.Tk):
         self.nRows = 0
         container = tk.Frame(self)
         container.pack(side="top", fill="both", expand=True)
-        container.grid_rowconfigure(1, weight=1)
-        container.grid_columnconfigure(0, weight=1)
+        container.grid_rowconfigure(9, weight=1)
+        container.grid_columnconfigure(2, weight=1)
 
         label = tk.Label(self, text=name, font=LARGE_FONT)
         label.pack(pady=10, padx=10)
@@ -388,7 +397,7 @@ class LiveGraphPage(tk.Tk):
         label = tk.Label(self, text="Data Collector", font=LARGE_FONT)
         label.pack(pady=10, padx=10)
 
-        button1 = tk.Button(self, text="Abort",
+        button1 = tk.Button(self, text="Back",
                             command=lambda: self.destroy())
         button1.pack()
 
@@ -405,7 +414,7 @@ class LiveGraphPage(tk.Tk):
 
         planeName, header, data = self.runSimulation()
 
-        Log.saveToCSV(planeName.get(), header, data)
+        Log.saveToCSV(planeName, header, data)
 
 
     def createPlots(self, figure):
